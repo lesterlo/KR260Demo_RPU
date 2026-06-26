@@ -1,96 +1,50 @@
+/*
+ * KR260 RPU demo - R5 core 0 entry point.
+ *
+ * This file owns the FreeRTOS tasks and their handles. The rpmsg communication
+ * lives in kr260demo::ControlService (../../common); R5c0Service adds the LED
+ * behaviour for this core. R5c0 drives the board's single LED ("UF2_LED") and
+ * runs the heartbeat.
+ */
+
 #include "FreeRTOS.h"
 #include "task.h"
-#include <unistd.h>
 
-#include "xil_printf.h"
-#include "xparameters.h"
-#include "xgpio.h"
-#include "xstatus.h"
+#include "kr260demo/control_service.hpp"
+#include "r5c0_service.hpp"
 
-#define DELAY_5s	5000UL
-#define DELAY_200ms	200UL
+static R5c0Service service(kr260demo::CoreConfig::current());
 
+static TaskHandle_t comm_task_handle;
+static TaskHandle_t led_task_handle;
 
-//Thread implementation
-static void myTask1(void *);
-static void myTask2(void *);
-
-
-//Task Handle
-static TaskHandle_t th_myTask1;
-static TaskHandle_t th_myTask2;
-
-XGpio_Config *led1_cfg;
-XGpio led1_io;
-volatile uint8_t led_status = 0;
-
-
-int main( void )
+static void comm_task(void *)
 {
+	service.run();
+}
 
-	xil_printf( "My first FreeRTOS app\n" );
+static void led_task(void *)
+{
+	service.run_heartbeat();
+}
 
+int main(void)
+{
+	if (!service.init_led())
+		return -1;
 
-    led1_cfg = XGpio_LookupConfig(XPAR_AXI_GPIO_0_BASEADDR);
-	int status = XGpio_CfgInitialize(&led1_io, led1_cfg, led1_cfg->BaseAddress);
-    if (status != XST_SUCCESS) {
-        xil_printf( "GPIO FAILD\n" );
-        return XST_FAILURE;
-    }
+	if (xTaskCreate(comm_task, "RPMSG", 2048, NULL, 2,
+			&comm_task_handle) != pdPASS)
+		return -1;
 
-    XGpio_SetDataDirection(&led1_io, 1, 0x00);
+	if (xTaskCreate(led_task, "LED", 1024, NULL, 1,
+			&led_task_handle) != pdPASS)
+		return -1;
 
-
-
-	xTaskCreate(myTask1,
-			    (const char *) "myTask1",
-				configMINIMAL_STACK_SIZE,
-				NULL,
-				tskIDLE_PRIORITY,
-				&th_myTask1);
-
-	xTaskCreate(myTask2,
-				(const char *) "myTask2",
-				configMINIMAL_STACK_SIZE,
-				NULL,
-				tskIDLE_PRIORITY,
-				&th_myTask2);
-
-    // Start the Task
 	vTaskStartScheduler();
 
+	while (1)
+		;
 
-	while(true);
-}
-
-
-
-
-static void myTask1(void* pvParameters)
-{
-  (void)pvParameters;
-
-  while(1)
-  {
-	  vTaskDelay(pdMS_TO_TICKS(DELAY_200ms));
-	  
-      led_status = led_status == 0x1? 0:0x1;
-      XGpio_DiscreteWrite(&led1_io, 1, led_status);
-  }
-
-}
-
-
-static void myTask2(void* pvParameters)
-{
-  (void)pvParameters;
-  unsigned int count = 0;
-
-  while(1)
-  {
-	  vTaskDelay(pdMS_TO_TICKS(DELAY_5s));
-	  count++;
-	  //xil_printf("R5c0: Thread 2 counter value: %u \r\n", count);
-  }
-
+	return 0;
 }
