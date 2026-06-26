@@ -41,7 +41,10 @@ endif()
 
 if("${PROJECT_TYPE}" STREQUAL "c++")
 collect(PROJECT_LIB_DEPS stdc++)
-set(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
+# NOTE: do not force CMAKE_C_COMPILER to the C++ compiler. The OpenAMP platform
+# glue under common/openamp is C and relies on C semantics (e.g. implicit
+# void* conversions); it must be compiled as C. The CXX linker is still used
+# because the application sources are C++.
 endif()
 collector_list (_deps PROJECT_LIB_DEPS)
 list (APPEND _deps ${USER_LINK_LIBRARIES})

@@ -27,6 +27,8 @@ set(USER_UNDEFINED_SYMBOLS
 # Example 3: Adding ${CMAKE_SOURCE_DIR}/data/include to add data/include from this project.
 
 set(USER_INCLUDE_DIRECTORIES
+"../../common/include"
+"../../common/openamp"
 )
 
 #Add any source below, they will be added as Compile sources.
@@ -35,6 +37,15 @@ set(USER_INCLUDE_DIRECTORIES
 #Example 3: Adding ${MY_ENV}/data/helloworld.c are expanded using project-specific environment settings.
 set(USER_COMPILE_SOURCES
 "MainApp/main.cpp"
+# Shared high-level C++ library (OpenAMP / rpmsg / control protocol)
+"../../common/src/openamp_platform.cpp"
+"../../common/src/rpmsg_endpoint.cpp"
+"../../common/src/control_service.cpp"
+# AMD OpenAMP / remoteproc platform glue (C)
+"../../common/openamp/platform_info.c"
+"../../common/openamp/rsc_table.c"
+"../../common/openamp/helper.c"
+"../../common/openamp/zynqmp_r5_a53_rproc.c"
 )
 
 # -----------------------------------------
