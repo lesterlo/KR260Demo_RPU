@@ -8,7 +8,7 @@
 #include "xstatus.h"
 
 #define DELAY_5s	5000UL
-#define DELAY_1s	1000UL
+#define DELAY_200ms	200UL
 
 
 //Thread implementation
@@ -72,7 +72,7 @@ static void myTask1(void* pvParameters)
 
   while(1)
   {
-	  vTaskDelay(pdMS_TO_TICKS(DELAY_1s));
+	  vTaskDelay(pdMS_TO_TICKS(DELAY_200ms));
 	  
       led_status = led_status == 0x1? 0:0x1;
       XGpio_DiscreteWrite(&led1_io, 1, led_status);
