@@ -1,0 +1,34 @@
+# Vitis platform component: keep only regenerable metadata, ignore generated
+# output. See AMD UG1400 "Files Required for Source Control".
+#
+# Tracked:   vitis-comp.json, each domain's bsp/bsp.yaml (holds
+#            freertos_timer_select -- i.e. the TTC choice), and this file.
+# NOT tracked / regenerated at platform init:
+#            the .xsa (built in Vivado, re-read by Vitis) and the whole BSP tree.
+
+# Hardware handoff + system device tree: .xsa is a large binary rebuilt in
+# Vivado; hw/sdt is regenerated.
+/hw/
+
+# Generated platform outputs
+/export/
+/resources/
+/logs/
+
+# Generated BSP output (rebuilt from bsp.yaml + .xsa)
+**/bsp/libsrc/
+**/bsp/include/
+**/bsp/lib/
+**/bsp/hw_artifacts/
+
+# Build / object / IDE junk
+/build
+**/build
+*.o
+*.d
+*.log
+*.lock
+*.bin
+*.pdi
+.vitisWorkspace.json
+_ide/

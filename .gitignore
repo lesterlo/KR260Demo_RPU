@@ -25,5 +25,7 @@ _ide/.wsdata
 _ide/
 .rigel_lopper/
 .cache/
-platform/
+# NOTE: platform/ is intentionally NOT ignored wholesale. Its own
+# platform/.gitignore keeps the regenerable metadata (vitis-comp.json, bsp.yaml)
+# and ignores all generated output, including the .xsa (rebuilt in Vivado).
 

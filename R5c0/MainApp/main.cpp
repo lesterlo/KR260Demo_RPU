@@ -37,7 +37,7 @@ int main(void)
 			&comm_task_handle) != pdPASS)
 		return -1;
 
-	if (xTaskCreate(led_task, "LED", 1024, NULL, 1,
+	if (xTaskCreate(led_task, "LED", 1024, NULL, 5,
 			&led_task_handle) != pdPASS)
 		return -1;
 
