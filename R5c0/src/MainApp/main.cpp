@@ -10,6 +10,7 @@
 #include "FreeRTOS.h"
 #include "platform_info.h"
 #include "task.h"
+#include "xgpio.h"
 #include "xil_printf.h"
 #include "xparameters.h"
 #include "xstatus.h"
@@ -18,6 +19,7 @@
 #define LPRINTF(fmt, ...) xil_printf("%s():%u " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define LPERROR(fmt, ...) LPRINTF("ERROR: " fmt, ##__VA_ARGS__)
 
+static XGpio led_gpio;
 static struct rpmsg_endpoint ctrl_ept;
 static TaskHandle_t comm_task;
 static TaskHandle_t led_task;
@@ -28,6 +30,17 @@ static volatile uint32_t error_count;
 static volatile uint8_t led_mode = ZUD_RPU_LED_HEARTBEAT;
 static volatile uint8_t led_on;
 
+static void apply_led_state(uint8_t on)
+{
+	uint32_t value = XGpio_DiscreteRead(&led_gpio, 1);
+
+	if (on)
+		value |= ZUDEMO_RPU_LED_MASK;
+	else
+		value &= ~ZUDEMO_RPU_LED_MASK;
+
+	XGpio_DiscreteWrite(&led_gpio, 1, value);
+}
 
 static uint32_t uptime_ms(void)
 {
@@ -40,14 +53,17 @@ static uint32_t set_led_mode(uint8_t mode)
 	case ZUD_RPU_LED_OFF:
 		led_mode = mode;
 		led_on = 0;
+		apply_led_state(led_on);
 		return ZUD_RPU_STATUS_OK;
 	case ZUD_RPU_LED_ON:
 		led_mode = mode;
 		led_on = 1;
+		apply_led_state(led_on);
 		return ZUD_RPU_STATUS_OK;
 	case ZUD_RPU_LED_TOGGLE:
 		led_mode = mode;
 		led_on = !led_on;
+		apply_led_state(led_on);
 		return ZUD_RPU_STATUS_OK;
 	case ZUD_RPU_LED_HEARTBEAT:
 		led_mode = mode;
@@ -247,16 +263,31 @@ static void led_processing(void *unused_arg)
 {
 	(void)unused_arg;
 
-	//No LED is being controlled in R5c1
-	
-	vTaskDelay(pdMS_TO_TICKS(100));
-
+	while (1) {
+		if (led_mode == ZUD_RPU_LED_HEARTBEAT) {
+			led_on = !led_on;
+			apply_led_state(led_on);
+			heartbeat_count++;
+			vTaskDelay(pdMS_TO_TICKS(ZUDEMO_RPU_HEARTBEAT_PERIOD_MS));
+		} else {
+			vTaskDelay(pdMS_TO_TICKS(100));
+		}
+	}
 }
 
 int main(void)
 {
 	BaseType_t stat;
 	int status;
+
+	status = XGpio_Initialize(&led_gpio, XPAR_AXI_GPIO_0_BASEADDR);
+	if (status != XST_SUCCESS) {
+		xil_printf("GPIO initialization failed\r\n");
+		return -1;
+	}
+
+	XGpio_SetDataDirection(&led_gpio, 1, 0x00);
+	apply_led_state(0);
 
 	stat = xTaskCreate(led_processing, (const char *)"LED", 1024,
 			   NULL, 1, &led_task);

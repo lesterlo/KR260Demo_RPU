@@ -54,18 +54,19 @@ extern "C" {
 #define IPI_CHN_BITMASK 0x01000000u
 #endif
 
-/*
- * Per-core shared-memory carve-out. These addresses are part of the
- * remoteproc contract with the Linux/APU side and match the device-tree
- * reserved-memory regions. The application-level identity of each core
- * (service name, LED mask, heartbeat period) lives in
- * kr260demo::CoreConfig (control_service.hpp).
- */
 #if XPAR_CPU_ID == 0
+#define ZUDEMO_RPU_CORE_ID 0u
+#define ZUDEMO_RPU_SERVICE_NAME "mncos-r5c0-ctrl"
+#define ZUDEMO_RPU_LED_MASK 0x02u
+#define ZUDEMO_RPU_HEARTBEAT_PERIOD_MS 100u
 #ifndef SHARED_MEM_PA
 #define SHARED_MEM_PA 0x09860000UL
 #endif
 #elif XPAR_CPU_ID == 1
+#define ZUDEMO_RPU_CORE_ID 1u
+#define ZUDEMO_RPU_SERVICE_NAME "mncos-r5c1-ctrl"
+#define ZUDEMO_RPU_LED_MASK 0x01u
+#define ZUDEMO_RPU_HEARTBEAT_PERIOD_MS 2000u
 #ifndef SHARED_MEM_PA
 #define SHARED_MEM_PA 0x09e60000UL
 #endif

@@ -18,17 +18,6 @@
 #include "xil_printf.h"
 #include "xparameters.h"
 
-/*
- * RSPMSG_DEBUG: when defined, OpenAMP/libmetal logs at METAL_LOG_DEBUG and every
- * log line is echoed to the UART via xil_printf. This is expensive -- the RPMsg
- * data path logs per vring/message operation, and a blocking UART write (~11 ms
- * per line at 115200 baud) inside OpenAMP's interrupt-masked sections starves
- * the FreeRTOS tick. It is therefore OFF by default; without it libmetal keeps
- * its default METAL_LOG_INFO level (DEBUG suppressed, errors/warnings still
- * printed). Enable it via the build (-DRSPMSG_DEBUG) or by uncommenting below.
- */
-/* #define RSPMSG_DEBUG */
-
 static int app_gic_initialize(void)
 {
 	xPortInstallInterruptHandler(IPI_IRQ_VECT_ID,
@@ -37,7 +26,6 @@ static int app_gic_initialize(void)
 	return 0;
 }
 
-#ifdef RSPMSG_DEBUG
 extern char *get_rsc_trace_info(unsigned int *);
 static struct {
 	char *c_buf;
@@ -75,21 +63,18 @@ static void rsc_trace_logger(enum metal_log_level level,
 		rsc_trace_putchar(*p);
 	xil_printf("%s", msg);
 }
-#endif /* RSPMSG_DEBUG */
 
 int init_system(void)
 {
 	int ret;
 	struct metal_init_params metal_param = METAL_INIT_DEFAULTS;
 
-#ifdef RSPMSG_DEBUG
 	circ.c_buf = get_rsc_trace_info(&circ.c_len);
 	if (circ.c_buf && circ.c_len) {
 		metal_param.log_handler = rsc_trace_logger;
 		metal_param.log_level = METAL_LOG_DEBUG;
 		circ.c_pos = circ.c_cnt = 0;
 	}
-#endif
 
 	metal_init(&metal_param);
 	app_gic_initialize();

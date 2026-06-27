@@ -36,14 +36,7 @@ set(USER_INCLUDE_DIRECTORIES
 #Example 2: Adding ../../common/helloworld.c will consider the path as relative to this component directory
 #Example 3: Adding ${MY_ENV}/data/helloworld.c are expanded using project-specific environment settings.
 set(USER_COMPILE_SOURCES
-"../MainApp/main.cpp"
-# Shared high-level C++ library (OpenAMP / rpmsg / control protocol)
-"../../common/src/openamp_platform.cpp"
-"../../common/src/rpmsg_endpoint.cpp"
-"../../common/src/control_service.cpp"
-# LED helper (R5c0 owns the board's single LED)
-"../../common/src/led_controller.cpp"
-# AMD OpenAMP / remoteproc platform glue (C)
+"MainApp/main.cpp"
 "../../common/openamp/platform_info.c"
 "../../common/openamp/rsc_table.c"
 "../../common/openamp/helper.c"
