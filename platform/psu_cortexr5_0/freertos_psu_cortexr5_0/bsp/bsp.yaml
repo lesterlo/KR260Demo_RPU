@@ -1281,9 +1281,6 @@ drv_info:
       xwdtps_polled_example.c: []
       xwdtps_selftest_example.c: []
 lib_info:
-  xiltimer:
-    path: /opt/Xilinx/2025.2/Vitis/data/embeddedsw/lib/sw_services/xiltimer_v2_3
-    examples: {}
   openamp:
     path: /opt/Xilinx/2025.2/Vitis/data/embeddedsw/ThirdParty/sw_services/openamp_v1_12
     examples: {}
@@ -1294,7 +1291,23 @@ lib_info:
     path: /opt/Xilinx/2025.2/Vitis/data/embeddedsw/lib/sw_services/xilmailbox_v1_12
     examples:
       xilmailbox_example.c: []
+  xiltimer:
+    path: /opt/Xilinx/2025.2/Vitis/data/embeddedsw/lib/sw_services/xiltimer_v2_3
+    examples: {}
 lib_config:
+  openamp:
+    OPENAMP_WITH_PROXY:
+      name: OPENAMP_WITH_PROXY
+      permission: read_write
+      type: boolean
+      value: 'false'
+      default: 'false'
+      options:
+      - 'true'
+      - 'false'
+      description: Enable proxy services in OpenAMP library
+  libmetal: {}
+  xilmailbox: {}
   xiltimer:
     XILTIMER_en_interval_timer:
       name: XILTIMER_en_interval_timer
@@ -1332,16 +1345,3 @@ lib_config:
       - psu_ttc_3
       - psu_ttc_0
       description: This parameter is used to select specific timer for tick functionality
-  openamp:
-    OPENAMP_WITH_PROXY:
-      name: OPENAMP_WITH_PROXY
-      permission: read_write
-      type: boolean
-      value: 'false'
-      default: 'false'
-      options:
-      - 'true'
-      - 'false'
-      description: Enable proxy services in OpenAMP library
-  libmetal: {}
-  xilmailbox: {}
