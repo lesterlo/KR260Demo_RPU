@@ -175,7 +175,7 @@ os_config:
       name: freertos_timer_select
       permission: read_write
       type: string
-      value: psu_ttc_6
+      value: psu_ttc_3
       default: psu_ttc_0
       options:
       - psu_ttc_0
@@ -188,7 +188,7 @@ os_config:
       name: freertos_timer_select_counter
       permission: read_write
       type: string
-      value: '0x0'
+      value: '0x1'
       default: '0x0'
       options:
       - '0x0'
@@ -828,7 +828,7 @@ lib_config:
       name: XILTIMER_tick_timer
       permission: read_write
       type: string
-      value: psu_ttc_6
+      value: psu_ttc_3
       default: psu_ttc_6
       options:
       - None
