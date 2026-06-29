@@ -1323,7 +1323,7 @@ lib_config:
       name: XILTIMER_sleep_timer
       permission: read_write
       type: string
-      value: psu_ttc_9
+      value: Default
       default: psu_ttc_9
       options:
       - Default
